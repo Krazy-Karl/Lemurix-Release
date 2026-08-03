@@ -1,0 +1,415 @@
+# Lemurix Flutter — Scénario de test complet
+
+Parcours de recette manuelle, module par module. Chaque étape donne **ce qu'on
+fait** et **ce qu'on doit voir**. Un écart = une anomalie à consigner, sauf s'il
+figure dans « Écarts connus » en fin de document.
+
+Le scénario est **séquentiel** : les données créées en début de parcours servent
+aux modules suivants. Le faire dans l'ordre.
+
+- **Durée indicative :** 1 h 30 pour le parcours complet.
+- **Prérequis :** base neuve (voir ci-dessous), application compilée en debug ou
+  release.
+
+---
+
+## 0. Repartir de zéro
+
+### Emplacement des données
+
+Tout tient dans un seul dossier :
+
+```
+%APPDATA%\mg.lemurix.app\
+```
+
+soit, en clair : `C:\Users\<vous>\AppData\Roaming\mg.lemurix.app\`
+
+| Fichier | Rôle |
+|---|---|
+| `lemurix.db` | la base, chiffrée en SQLCipher |
+| `lemurix.db-wal` / `lemurix.db-shm` | journal SQLite — à supprimer avec la base, sinon état incohérent |
+| `recovery.key` | clé de récupération du mot de passe admin, générée au premier lancement |
+| `backups\*.lmx` | sauvegardes chiffrées |
+
+### Réinitialisation
+
+**Fermer l'application d'abord** — le WAL n'est pas recyclé tant que le
+processus tourne.
+
+```powershell
+Stop-Process -Name lemurix_flutter -Force -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force "$env:APPDATA\mg.lemurix.app"
+```
+
+Au lancement suivant, le dossier et la base sont recréés, et le parcours
+repart aux conditions générales d'utilisation.
+
+### Ce qui n'est **pas** dans ce dossier
+
+La clé de chiffrement de la base vit dans le **gestionnaire d'identifiants
+Windows**, sous le service `lemurix`, entrées `db-key` et `admin-password`.
+
+- La laisser en place est **sans effet** sur le test : une base neuve réutilise
+  la même clé.
+- Pour simuler une machine réellement vierge (première installation chez un
+  client), la supprimer aussi :
+
+  ```powershell
+  cmdkey /delete:lemurix
+  ```
+
+- **Attention au sens inverse :** supprimer l'entrée du gestionnaire
+  d'identifiants **sans** supprimer la base rend celle-ci définitivement
+  illisible. C'est précisément le scénario contre lequel les sauvegardes `.lmx`
+  protègent — et c'est un test à faire un jour, mais pas dans ce parcours.
+
+### Tester sans toucher à ses vraies données
+
+La variable d'environnement `LEMURIX_DB` détourne l'application vers une autre
+base. Le dossier est créé s'il n'existe pas.
+
+```powershell
+$env:LEMURIX_DB = "C:\tmp\lemurix-test\lemurix.db"
+.\build\windows\x64\runner\Debug\lemurix_flutter.exe
+```
+
+C'est la façon recommandée de rejouer le premier lancement en boucle : il suffit
+de supprimer `C:\tmp\lemurix-test` entre deux passes.
+
+---
+
+## 1. Premier lancement
+
+### 1.1 Conditions d'utilisation
+
+| Action | Attendu |
+|---|---|
+| Lancer l'application sur une base neuve | Écran « Politique d'utilisation », texte complet dans un cadre défilant |
+| Cliquer la case « J'ai lu et j'accepte » **sans avoir fait défiler** | La case **ne se coche pas**, le bouton « J'accepte » reste grisé |
+| Faire défiler jusqu'en bas du texte | Le texte se termine par « 11. Contact », un courriel, et la mention « Ce document est un brouillon » |
+| Cocher la case, puis « J'accepte » | Passage à la création de compte |
+
+### 1.2 Création du compte administrateur
+
+| Action | Attendu |
+|---|---|
+| Écran « Créez votre compte administrateur » | Trois champs : identifiant, mot de passe, confirmation. Mention « 12 caractères minimum » |
+| Saisir un mot de passe de moins de 12 caractères | Refus explicite |
+| Saisir deux mots de passe différents | Refus explicite |
+| Identifiant `karl`, mot de passe `Lemurix@Test2026!` (deux fois), valider | Passage à l'écran de connexion |
+
+> Le mot de passe par défaut `Lemurix2026!` du backend n'apparaît **jamais** dans
+> ce parcours : l'écran de création de compte le remplace avant tout login.
+
+### 1.3 Connexion
+
+| Action | Attendu |
+|---|---|
+| Se connecter avec un mauvais mot de passe | Message d'erreur, pas de session ouverte |
+| Se connecter avec `karl` / `Lemurix@Test2026!` | Ouverture de l'assistant de configuration, **pas** de l'accueil |
+
+---
+
+## 2. Assistant de premier lancement (wizard)
+
+L'assistant s'affiche tant qu'il manque une raison sociale **ou** un exercice.
+Il ne réapparaît plus une fois les deux en place.
+
+### 2.1 Étape 1 — Votre société
+
+| Action | Attendu |
+|---|---|
+| Écran affiché | Titre « Bienvenue dans Lemurix », indicateur à trois étapes, l'étape 1 active |
+| Cliquer « Suivant » avec la raison sociale vide | « La raison sociale est obligatoire. » |
+| Saisir un email malformé (`karl@`) et valider | « L'adresse email n'est pas valide. » |
+| Vérifier les valeurs par défaut | Plan comptable = `PCGM`, devise = `MGA`. Le plan comptable est grisé, avec la mention « D'autres régimes seront disponibles en V1.1 » |
+| Raison sociale `SARL Test Portage`, NIF `1000099999`, email valide, puis « Suivant » | Passage à l'étape 2 |
+
+### 2.2 Étape 2 — Premier exercice
+
+| Action | Attendu |
+|---|---|
+| Écran affiché | Libellé **pré-rempli** « SARL Test Portage <année en cours> », dates du 1ᵉʳ janvier au 31 décembre de l'année en cours |
+| Régime fiscal | Liste vide au départ, trois options : `IS · Impôt Synthétique`, `IR · Régime réel`, `IBS · Société SARL / SA` |
+| Valider sans choisir de régime | « Le régime fiscal est obligatoire pour créer un exercice. » |
+| Mettre une date de fin antérieure à la date de début | « La date de fin doit être postérieure à la date de début. » |
+| Mettre une période de plus de 366 jours | « Un exercice ne peut pas dépasser 12 mois (366 jours maximum). » |
+| Type de démarrage | Deux boutons, « Constitution de la société » sélectionné par défaut |
+| Choisir `IBS`, laisser « Constitution », cliquer « Créer et continuer » | Passage à l'étape 3 |
+| **Revenir en arrière puis avancer à nouveau** | **Aucun second exercice n'est créé** — à vérifier plus tard dans Paramètre comptable › Exercices, qui ne doit en lister qu'un |
+
+### 2.3 Étape 3 — Constitution
+
+| Action | Attendu |
+|---|---|
+| Écran affiché | Trois lignes d'apports en numéraire, deux d'apports en nature, total à `0 MGA` |
+| Compte par défaut des apports en nature | `2110 · Terrains` (première option de la liste, sept comptes de `2110` à `2188`) |
+| Champ mode de règlement | Saisie **libre** avec autocomplétion, pas une liste fermée. Placeholder « Caisse / Banque… » |
+| Taper `ca` dans le mode de règlement | Propositions filtrées sur ce qui contient « ca » — `Virement bancaire` en fait partie |
+| Ligne 1 : associé `Rakoto`, mode `Caisse principale` (**qui n'existe pas**), montant `5000000` | Le total passe à `5 000 000 MGA`, avec séparateurs de milliers |
+| Ligne nature 1 : `Ordinateur portable`, compte `2185 · Matériel informatique`, valeur `2000000` | Total `7 000 000 MGA` |
+| Bouton « + Ligne » de chaque section | Ajoute une ligne vide |
+| Croix en fin de ligne | Supprime la ligne, le total se recalcule |
+| Cliquer « Valider et terminer » | Arrivée dans l'application |
+
+> « Passer → » et « Valider et terminer → » déclenchent **le même traitement** :
+> passer revient à valider avec des listes vides. C'est le comportement de la
+> référence, pas un défaut.
+
+### 2.4 Contrôle de ce que la constitution a produit
+
+| Action | Attendu |
+|---|---|
+| Comptabilité › Écritures | Deux écritures au statut **VALIDÉE** : « Constitution — apport numéraire Rakoto » à 5 000 000 et « Constitution — apport en nature Ordinateur portable » à 2 000 000 |
+| Vérifier les accents des libellés | Le tiret est un vrai tiret cadratin, « numéraire » est correctement accentué. Toute trace de `Ã©` ou `â€` est une régression |
+| Comptabilité › États financiers › Bilan | `TOTAL ACTIF` = `TOTAL PASSIF` = `7 000 000 MGA`. Immobilisations corporelles 2 000 000, Disponibilités 5 000 000, Capital social 7 000 000 |
+| Comptabilité › Paramètre comptable › Modes de règlement | `Caisse principale` existe, de type `CAISSE` — créé à la volée par l'assistant |
+| Relancer l'application et se reconnecter | L'assistant **ne réapparaît pas** |
+
+---
+
+## 3. Paramètres
+
+### 3.1 Apparence
+
+| Action | Attendu |
+|---|---|
+| Basculer « Mode sombre » | Le thème change immédiatement, **et l'interrupteur bouge** |
+| Rebasculer **sans quitter l'onglet** | Retour au thème précédent, l'interrupteur suit. Un interrupteur qui se fige après un changement est le bug corrigé en `958eca5` — régression |
+| Basculer « Mode compact » trois fois d'affilée | L'interrupteur alterne à chaque clic |
+| Aller dans un module avec un tableau, mode compact activé | Les lignes du tableau sont plus basses |
+| Quitter et relancer l'application | Thème et densité conservés |
+
+### 3.2 Société
+
+| Action | Attendu |
+|---|---|
+| Ouvrir l'onglet | Raison sociale, NIF et email saisis dans l'assistant sont là |
+| Régime fiscal | **Lecture seule**, mention « Modifiable uniquement à la création du prochain exercice » |
+| Modifier l'adresse et le téléphone, enregistrer | Confirmation, valeurs conservées après navigation |
+| Réenregistrer sans toucher au régime fiscal | Le régime fiscal **n'est pas effacé** (c'est ERR-075) |
+
+### 3.3 Sécurité
+
+| Action | Attendu |
+|---|---|
+| Ouvrir l'onglet | Emplacement du fichier `recovery.key` affiché, sans jamais montrer la clé |
+| Changer le mot de passe avec un ancien mot de passe erroné | Refus |
+| Changer le mot de passe avec une confirmation différente | Refus |
+| Changer pour `Lemurix@Test2027!`, se déconnecter, se reconnecter | L'ancien mot de passe est refusé, le nouveau accepté |
+
+### 3.4 Sauvegarde
+
+| Action | Attendu |
+|---|---|
+| Ouvrir l'onglet | Dossier de destination affiché, pointant sur `%APPDATA%\mg.lemurix.app\backups` |
+| Créer une sauvegarde manuelle | Un `.lmx` apparaît dans la liste **et** dans le dossier |
+| Changer le dossier de destination | Le nouveau chemin est retenu après navigation |
+| Régler fréquence et rétention | Les valeurs sont conservées — mais voir « Écarts connus » : **rien ne les exécute** |
+| Restaurer une sauvegarde | Confirmation demandée avant écrasement |
+
+### 3.5 Préférences
+
+| Action | Attendu |
+|---|---|
+| Basculer chaque interrupteur deux fois | Chacun alterne à chaque clic |
+| « Durée des notifications » à 6 secondes, provoquer un toast | Le message reste affiché ~6 s |
+| Désactiver « Confirmation avant suppression », supprimer un élément | Plus de dialogue de confirmation |
+| Désactiver « Écritures automatiques », valider une facture | **Aucune** écriture comptable générée |
+| Désactiver « Numérotation automatique des pièces » | Le numéro de pièce devient saisissable dans le formulaire d'écriture |
+| « Lignes produit par défaut » à 5, ouvrir un nouveau document | Cinq lignes vides |
+
+### 3.6 À propos et Manuel
+
+| Action | Attendu |
+|---|---|
+| À propos | Version, et lien vers la politique d'utilisation — le texte affiché est **le même** qu'à l'écran d'accueil, pas un texte de remplissage |
+| Manuel d'utilisation | Contenu affiché et défilable |
+
+---
+
+## 4. Comptabilité
+
+### 4.1 Paramètre comptable
+
+Sept onglets. Les parcourir dans cet ordre.
+
+| Onglet | Attendu |
+|---|---|
+| **Exercices** | **Un seul** exercice, statut `OUVERT`, dates et libellé de l'assistant. Bouton de création d'un nouvel exercice |
+| Créer un exercice qui chevauche l'existant | Avertissement de chevauchement |
+| Créer un exercice de plus de 366 jours | Refus |
+| **Plan comptable** | Comptes du PCGM chargés. Recherche par numéro et par libellé |
+| **Journaux** | Journaux de l'exercice créés automatiquement (au minimum `OD`) |
+| **Modes de règlement** | `Caisse principale` créée par l'assistant, plus les modes amorcés |
+| Créer un mode de type `BANQUE` | Apparaît dans la liste et devient disponible dans les écrans de règlement |
+| **TVA** | Taux amorcés — dont 20 % |
+| **Taux fiscaux** | Barèmes affichés |
+| **Modèles CTB** | Liste des modèles d'écriture |
+
+### 4.2 Écritures
+
+| Action | Attendu |
+|---|---|
+| Ouvrir la liste | Les deux écritures de constitution, colonnes Date / Référence / Libellé / Tiers / Montant / Règlement / Statut |
+| Format des dates | `JJ/MM/AAAA` |
+| Rechercher par libellé | Filtrage immédiat |
+| Ouvrir une écriture | Détail équilibré, total débit = total crédit |
+| **Nouvelle opération** (mode assisté) | Liste d'opérations métier ; choisir un modèle pré-remplit les comptes |
+| Créer une écriture en brouillon | Elle apparaît dans la liste au statut `BROUILLON` |
+| Valider le brouillon | Passage à `VALIDÉE`, numéro de pièce attribué |
+| Tenter de modifier une écriture validée | Refus |
+| **Mode expert** | Saisie ligne à ligne, débit et crédit libres |
+| Enregistrer une écriture expert déséquilibrée | Refus explicite |
+| Enregistrer une écriture expert équilibrée | Créée, visible dans la liste |
+
+### 4.3 États financiers
+
+Cinq onglets, tous à vérifier sur l'exercice courant.
+
+| Onglet | Attendu |
+|---|---|
+| **Bilan** | Actif = Passif. Les totaux intermédiaires somment bien |
+| **Compte de résultat** | Résultat net cohérent avec le bilan (même valeur, chemin de calcul différent) |
+| **Balance générale** | Total débit = total crédit |
+| **Flux de trésorerie** | Variation de trésorerie cohérente avec les Disponibilités du bilan |
+| **Livre-journal** | Toutes les écritures, dans l'ordre chronologique |
+| Bouton **Exporter** de chaque onglet | Un fichier est réellement **écrit sur disque** à l'emplacement choisi, et il s'ouvre |
+
+> L'export est le point à ne pas survoler : neuf commandes d'export calculaient
+> leur contenu puis le jetaient jusqu'au correctif du 02/08.
+
+### 4.4 Déclarations TVA, Acomptes fiscaux, Reprise
+
+| Écran | Attendu |
+|---|---|
+| **Déclarations TVA** | Période sélectionnable, TVA collectée et déductible calculées depuis les écritures |
+| **Acomptes fiscaux** | Échéances affichées selon le régime `IBS` choisi |
+| **Reprise d'exercice** | Écran de saisie des soldes d'ouverture. Sur un exercice déjà initialisé par l'assistant, la reprise doit être **refusée** (« Cet exercice a déjà été initialisé ») |
+
+### 4.5 Tableau de bord comptable
+
+| Action | Attendu |
+|---|---|
+| Ouvrir | Indicateurs et graphique de trésorerie. Le résultat net affiché est **le même** que celui du compte de résultat |
+
+---
+
+## 5. Clients & Fournisseurs
+
+### 5.1 Tiers
+
+| Action | Attendu |
+|---|---|
+| **Nouveau tiers** | Formulaire ; les cases Client et Fournisseur sont **cumulables** |
+| Créer `Rakoto & Fils`, coché Client **et** Fournisseur | Dans la liste, badge `C+F` |
+| Créer un fournisseur `Ets Ravaka` | Badge `FOURN.` |
+| **Liste des tiers** | Les deux tiers, recherche fonctionnelle |
+| Sélection multiple | Les cases à cocher apparaissent, l'action groupée s'applique à la sélection |
+| **Fiche tiers** | Coordonnées, encours, historique. Zone de notes libre, enregistrée automatiquement |
+
+### 5.2 Documents commerciaux
+
+| Action | Attendu |
+|---|---|
+| Créer une facture pour `Rakoto & Fils` | Formulaire, nombre de lignes conforme à la préférence « Lignes produit par défaut » |
+| Saisir une désignation libre absente du catalogue | Bandeau « N produits non répertoriés » |
+| **Drawer « Nouveau tiers »** | S'ouvre sans quitter le formulaire ; avertit si le nom ressemble à un tiers existant |
+| **Drawer « Créer rapidement »** (produits) | Crée en une fois les produits correspondant aux désignations libres |
+| **Drawer « Produits habituels »** | Produits déjà échangés avec ce tiers, du plus fréquent au moins fréquent, chargés par lots avec « Charger plus » |
+| Colonne TVA | Présente ou absente selon la préférence `Afficher la colonne TVA` |
+| Valider la facture | Document créé ; **si** « Écritures automatiques » est actif, une écriture comptable apparaît dans Comptabilité › Écritures |
+| **Détail du document** | Lignes, totaux HT / TVA / TTC cohérents |
+| **Historique & Encours** | La facture figure à l'encours du tiers |
+| **Paiements en attente** | La facture y figure tant qu'elle n'est pas réglée |
+| Enregistrer un règlement | L'encours diminue du montant réglé ; solde à zéro = sortie des paiements en attente |
+
+---
+
+## 6. Stock & Commandes
+
+| Action | Attendu |
+|---|---|
+| **Catalogue** — base neuve | État vide « Aucun produit au catalogue » |
+| Créer une catégorie | Apparaît dans le sélecteur du formulaire produit |
+| Créer un produit à vendre (`Riz 5 kg`, unité `kg`, prix de vente) | Apparaît dans l'onglet « À vendre » |
+| Créer un produit à usage interne | Apparaît dans l'onglet « Usage interne », pas dans « À vendre » |
+| **Fiche produit** | Prix, stock, mouvements associés |
+| **État du stock** | Quantités par produit ; un produit sans mouvement est à zéro |
+| **Mouvements** — créer une entrée de 100 unités | Le stock passe à 100 |
+| Créer une sortie de 30 unités | Le stock passe à 70 |
+| Créer une sortie supérieure au stock | Refus, ou avertissement explicite |
+| Filtre de période des mouvements | Filtre effectivement sur les dates |
+| **Restock** | Produits sous le seuil d'alerte, si « Alerte stock minimum » est actif |
+| **Commandes** | Liste des commandes ; ouvrir le détail d'une commande existante |
+| **Fabrication** | Écran de production ; une production consomme les composants et crédite le produit fini |
+
+---
+
+## 7. Trésorerie
+
+| Action | Attendu |
+|---|---|
+| **Soldes** | Une carte par compte de trésorerie. `Caisse principale` affiche **5 000 000 MGA** — l'apport de la constitution |
+| Cliquer une carte | L'Historique s'ouvre **sur ce compte**, pas sur le premier de la liste |
+| **Historique** | Mouvements du compte, avec report de période |
+| **Perte / Boni** | Saisir un ajustement négatif : le solde diminue, une écriture `6583` est générée |
+| Saisir un ajustement positif | Le solde augmente, écriture `7583` |
+| Tenter un ajustement rendant une caisse négative | Refus |
+| Transfert entre deux comptes | Le solde source diminue, le solde destination augmente du même montant |
+| Transfert avec frais | Trois lignes d'écriture : destination, frais en `627`, source débitée du total |
+
+---
+
+## 8. Traversée finale
+
+| Action | Attendu |
+|---|---|
+| Parcourir toutes les entrées de la barre latérale | Aucun écran vide inattendu, aucune erreur rouge |
+| Replier / déplier la barre latérale | Les favoris restent accessibles en mode replié |
+| Ajouter une entrée aux favoris | Elle apparaît dans la section FAVORIS et **survit au redémarrage** |
+| Fil d'Ariane sur un écran empilé (fiche tiers, détail document) | Il indique le chemin complet |
+| Se déconnecter | Retour à l'écran de connexion, session fermée |
+| Relancer | Reconnexion demandée — la session ne survit pas à la fermeture |
+
+---
+
+## Écarts connus — à ne pas consigner comme anomalies
+
+Repris de `DETTE_TECHNIQUE.md`, où le détail figure.
+
+| Constat | Statut |
+|---|---|
+| Le bandeau d'en-tête affiche « Exercice 2025-2026 » et les initiales « AD » quel que soit l'exercice ouvert et l'utilisateur connecté | Codé en dur, connu |
+| Les champs de date s'écrivent en `AAAA-MM-JJ` à la main, sans sélecteur (assistant étape 2, création d'exercice) | Connu, à traiter d'un bloc |
+| Fréquence, sauvegarde à la fermeture et rétention sont enregistrées mais **rien ne les exécute** | ERR-074, fonctionnalité à écrire |
+| Branche « Reprise du dernier exercice » de l'assistant : renvoie vers l'écran Reprise au lieu des cinq sous-étapes de la référence | Non porté |
+| Écran « Nouvelle commande » absent — les boutons mènent à Restock | Non porté |
+| Imports Excel (stock, catalogue, tiers) absents | Non porté |
+| Comptes Mobile Money : la fiche tiers affiche la carte, rien ne permet d'en créer | Non porté |
+| Conditions de paiement : onglet en lecture seule | Non porté |
+| Soldes de reprise d'exercice dans Paiements en attente | Non porté |
+| Les cases à cocher ont l'aspect Material (arrondi, effet d'encre) et non celui des cases HTML | Connu, `AppCheckbox` à écrire |
+
+---
+
+## Consigner une anomalie
+
+Le journal du projet est `Roadmap/tests/JOURNAL_ERREURS.md`, **dans le dépôt
+Tauri** (`D:\Code learning\Projects\Lemurix\`). Format d'une entrée :
+
+```markdown
+### ERR-0XX — Titre court
+**Date :** JJ/MM/AAAA
+**Sévérité :** 🔴 Bloquant | 🟡 Important | 🟢 Mineur
+**Module :**
+
+**Résultat obtenu :**
+**Résultat attendu :**
+**Découverte :** comment le reproduire
+**Fichier(s) :**
+**Statut :** ⏳ Ouvert
+```
+
+Penser à mettre à jour le tableau des statistiques en fin de fichier.
