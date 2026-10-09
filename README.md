@@ -9,16 +9,16 @@ fichier chiffré, et ne partent jamais sur Internet.
 
 | Fichier | Pour qui | Droits administrateur |
 |---|---|---|
-| **`Lemurix_1.0.0_x64_installateur.exe`** | **Tout le monde. C'est la version à prendre.** | **Aucun** |
-| `Lemurix_0.1.0_x64-setup.exe` | Ancienne version, conservée pour les testeurs qui l'utilisent déjà | Oui |
+| **`Lemurix_0.1.10_x64_installateur.exe`** | **Tout le monde. C'est la version à prendre.** | **Aucun** |
+| `Lemurix_0.1.0_x64-setup.exe` | Ancienne version Tauri, conservée pour les testeurs qui l'utilisent déjà | Oui |
 | `Lemurix_0.1.0_x64_en-US.msi` | Ancienne version, format destiné aux déploiements en entreprise | Oui |
 
-Si vous découvrez Lemurix, prenez **`Lemurix_1.0.0_x64_installateur.exe`** et
+Si vous découvrez Lemurix, prenez **`Lemurix_0.1.10_x64_installateur.exe`** et
 ignorez les deux autres.
 
 ## Installation
 
-1. Téléchargez `Lemurix_1.0.0_x64_installateur.exe`.
+1. Téléchargez `Lemurix_0.1.10_x64_installateur.exe`.
 2. Double-cliquez dessus.
 3. **Windows va afficher un avertissement bleu** — voir juste en dessous.
 4. Suivez l'assistant, puis lancez Lemurix.
