@@ -34,20 +34,39 @@ Au lancement de l'installateur, Windows affiche un écran bleu :
 > **Windows a protégé votre ordinateur**
 > Microsoft Defender SmartScreen a empêché le démarrage d'une application non reconnue.
 
-**C'est normal, et ce n'est pas un virus.** Windows affiche ce message pour tout
-logiciel qui n'a pas encore été téléchargé par des milliers de personnes, ou
-dont l'éditeur n'a pas acheté de certificat commercial. Lemurix est signé, mais
-par un certificat créé par son auteur, que Windows ne connaît pas encore.
+**C'est normal, et ce n'est pas un virus.** Windows affiche ce message pour
+tout logiciel dont l'éditeur n'a pas acheté de certificat auprès d'une
+autorité qu'il reconnaît. Ces certificats coûtent plusieurs centaines
+d'euros par an ; Lemurix n'en a pas encore.
 
 Pour continuer :
 
 1. Cliquez sur **« Informations complémentaires »**.
 2. Cliquez sur **« Exécuter quand même »**.
 
-Vous pouvez vérifier avant d'installer que le fichier est bien celui-ci :
-clic droit sur l'installateur → **Propriétés** → onglet **Signatures
-numériques**. Le signataire doit être **Karl Randrianaritiana**. Si ce n'est pas
-le cas, ne l'installez pas et prévenez-moi.
+### Vérifier que le fichier est bien le bon
+
+Puisqu'il n'y a pas de certificat reconnu, le moyen fiable est de comparer
+l'empreinte du fichier téléchargé à celle publiée ici. Ouvrez PowerShell
+dans votre dossier de téléchargements et tapez :
+
+```powershell
+Get-FileHash .\Lemurix_0.1.10_x64_installateur.exe -Algorithm SHA256
+```
+
+L'empreinte affichée doit être **exactement** :
+
+```
+17F1DFC45406FC6B16AEADB06F68E27E4E437862C8FF31C3AEB4DC84863854AD
+```
+
+Si elle diffère, le fichier a été modifié depuis sa publication : ne
+l'installez pas et prévenez-moi.
+
+Chaque version publiée ici indique son empreinte. C'est la seule
+vérification qui ait une valeur tant qu'un certificat commercial n'est pas
+en place : n'importe qui peut fabriquer un certificat portant mon nom, mais
+personne ne peut fabriquer un fichier différent ayant la même empreinte.
 
 ## Vos données
 
