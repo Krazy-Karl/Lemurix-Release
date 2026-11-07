@@ -9,16 +9,16 @@ fichier chiffré, et ne partent jamais sur Internet.
 
 | Fichier | Pour qui | Droits administrateur |
 |---|---|---|
-| **`Lemurix_0.1.10_x64_installateur.exe`** | **Tout le monde. C'est la version à prendre.** | **Aucun** |
+| **`Lemurix_0.1.11_x64_installateur.exe`** | **Tout le monde. C'est la version à prendre.** | **Aucun** |
 | `Lemurix_0.1.0_x64-setup.exe` | Ancienne version Tauri, conservée pour les testeurs qui l'utilisent déjà | Oui |
 | `Lemurix_0.1.0_x64_en-US.msi` | Ancienne version, format destiné aux déploiements en entreprise | Oui |
 
-Si vous découvrez Lemurix, prenez **`Lemurix_0.1.10_x64_installateur.exe`** et
+Si vous découvrez Lemurix, prenez **`Lemurix_0.1.11_x64_installateur.exe`** et
 ignorez les deux autres.
 
 ## Installation
 
-1. Téléchargez `Lemurix_0.1.10_x64_installateur.exe`.
+1. Téléchargez `Lemurix_0.1.11_x64_installateur.exe`.
 2. Double-cliquez dessus.
 3. **Windows va afficher un avertissement bleu** — voir juste en dessous.
 4. Suivez l'assistant, puis lancez Lemurix.
@@ -39,6 +39,12 @@ tout logiciel dont l'éditeur n'a pas acheté de certificat auprès d'une
 autorité qu'il reconnaît. Ces certificats coûtent plusieurs centaines
 d'euros par an ; Lemurix n'en a pas encore.
 
+L'installateur **est** signé, au nom de Karl Randrianaritiana, mais par un
+certificat que j'ai émis moi-même. Windows le signalera comme non approuvé,
+et c'est exact : n'importe qui pourrait émettre un certificat portant mon
+nom. Ne vous fiez donc pas à cette signature pour authentifier le fichier,
+mais à son empreinte ci-dessous.
+
 Pour continuer :
 
 1. Cliquez sur **« Informations complémentaires »**.
@@ -51,13 +57,13 @@ l'empreinte du fichier téléchargé à celle publiée ici. Ouvrez PowerShell
 dans votre dossier de téléchargements et tapez :
 
 ```powershell
-Get-FileHash .\Lemurix_0.1.10_x64_installateur.exe -Algorithm SHA256
+Get-FileHash .\Lemurix_0.1.11_x64_installateur.exe -Algorithm SHA256
 ```
 
 L'empreinte affichée doit être **exactement** :
 
 ```
-17F1DFC45406FC6B16AEADB06F68E27E4E437862C8FF31C3AEB4DC84863854AD
+D88A1A7468B30C5D479F2444123A7A2726362BAE2880C76999678B45D7448FEC
 ```
 
 Si elle diffère, le fichier a été modifié depuis sa publication : ne
