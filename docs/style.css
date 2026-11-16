@@ -1,0 +1,112 @@
+/* Couleurs de lib/theme.dart (thème sombre) et Manrope 400/500 des assets. */
+@font-face {
+  font-family: "Manrope";
+  src: url("fonts/manrope-latin-400.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("fonts/manrope-latin-500.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #1e1e1e;
+  --surface: #252526;
+  --surface2: #2d2d2d;
+  --border: #3c3c3c;
+  --text: #e4e4e4;
+  --text-muted: #9d9d9d;
+  --accent: #d34e24;
+  --accent-hover: #b8401c;
+  --gold: #eec170;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 400;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.entete,
+main,
+.pied {
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.entete { padding-top: 1.75rem; padding-bottom: 0.5rem; }
+.logo { display: block; height: auto; max-width: 11rem; }
+
+h1, h2 { font-weight: 500; line-height: 1.25; }
+h1 { font-size: 1.9rem; margin: 2rem 0 0.75rem; }
+h2 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+
+section { margin: 2.25rem 0; }
+.intro { margin-top: 1rem; }
+.sous-titre { color: var(--text-muted); font-size: 1.15rem; margin-top: 0; }
+
+p { margin: 0.5rem 0; }
+ul { padding-left: 1.25rem; margin: 0.5rem 0; }
+li { margin: 0.4rem 0; }
+strong { font-weight: 500; }
+.petit { color: var(--text-muted); font-size: 0.9rem; }
+
+a { color: var(--gold); }
+
+.bouton {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.8rem 1.4rem;
+  border-radius: 0.5rem;
+}
+.bouton:hover, .bouton:focus-visible { background: var(--accent-hover); }
+.bouton:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.encadre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+}
+
+code {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  padding: 0.05rem 0.35rem;
+  font-size: 0.95em;
+}
+
+.pied {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding-top: 1rem;
+  padding-bottom: 2.5rem;
+  border-top: 1px solid var(--border);
+  margin-top: 3rem;
+}
+
+@media (max-width: 30rem) {
+  body { font-size: 1rem; }
+  h1 { font-size: 1.55rem; }
+}
