@@ -3,97 +3,198 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Lemurix – testez une application de gestion</title>
-  <meta name="description" content="Stock, clients et comptabilité sur votre ordinateur, sans internet. Version de test gratuite pour les testeurs.">
+  <title>Lemurix – version de test pour petites entreprises</title>
+  <meta name="description" content="Stock, clients et comptabilité sur votre ordinateur. Elle fonctionne sans internet. Version de test, gratuite pour les testeurs.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Lemurix : testez une application de gestion pour petites entreprises">
+  <meta property="og:description" content="Stock, clients et comptabilité sur votre ordinateur. Elle fonctionne sans internet. Version de test, gratuite pour les testeurs.">
+  <meta property="og:image" content="https://krazy-karl.github.io/Lemurix-Release/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem("lemurix-mode");
+        if (m === "light" || m === "dark") document.documentElement.setAttribute("data-theme", m);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
-  <header class="entete">
-    <img src="img/lemurix-wordmark.svg" alt="Lemurix" class="logo" width="176" height="51">
+  <header class="colonne entete">
+    <a class="marque" href="#haut" aria-label="Lemurix">
+      <img src="img/lemurix-mask.svg" alt="" width="40" height="40">
+      <span>Lemurix</span>
+    </a>
+    <button class="bascule" type="button" id="bascule" aria-label="Changer entre mode clair et mode sombre">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <span>Clair / sombre</span>
+    </button>
   </header>
 
-  <main>
-    <section class="intro">
-      <h1>Lemurix : testez une application de gestion pour petites entreprises</h1>
-      <p class="sous-titre">Stock, clients et comptabilité sur votre ordinateur. Elle fonctionne sans internet.</p>
-      <p>
-        <a class="bouton" href="https://github.com/Krazy-Karl/Lemurix-Release/releases/latest">Télécharger la dernière version</a>
-      </p>
-      <p class="petit">Pour Windows 10 ou 11. Environ 16 Mo. Pas besoin d’internet pour installer. Pas de droits administrateur.</p>
+  <main id="haut">
+    <section class="colonne hero">
+      <div class="hero-texte">
+        <h1>Lemurix : testez une application de gestion pour petites entreprises</h1>
+        <p class="sous-titre">Stock, clients et comptabilité sur votre ordinateur. Elle fonctionne sans internet.</p>
+        <div class="boutons">
+          <a class="bouton" href="https://github.com/Krazy-Karl/Lemurix-Release/releases/latest">Télécharger la version de test</a>
+          <a class="bouton secondaire" href="https://wa.me/261386881708">Écrire sur WhatsApp</a>
+        </div>
+        <p class="ligne-etat"><strong>Version de test</strong> · Windows 10 ou 11 · Test gratuit pour les testeurs</p>
+      </div>
+      <div class="fenetre">
+        <div class="fenetre-barre" aria-hidden="true"><span></span><span></span><span></span></div>
+        <img class="img-sombre" src="img/tableau-de-bord_sombre.png" width="1582" height="853" alt="Tableau de bord de Lemurix avec des données d'exemple.">
+        <img class="img-clair" src="img/tableau-de-bord_clair.png" width="1582" height="853" alt="Tableau de bord de Lemurix avec des données d'exemple.">
+      </div>
     </section>
 
-    <section>
-      <h2>Qui suis-je</h2>
-      <p>
-        Je m’appelle Karl. J’ai créé Lemurix pour aider les petites entreprises à tenir une comptabilité plus simple et
-        plus claire. C’est une version de test : je cherche des testeurs, et votre avis compte plus que tout.
-      </p>
+    <section class="colonne bloc double" aria-labelledby="bloc-a">
+      <div class="bloc-texte">
+        <h2 id="bloc-a">Vous enregistrez une perte de stock, l’écriture se crée toute seule</h2>
+        <p>Une perte de stock ou un ajustement d’inventaire, et l’écriture comptable correspondante est créée pour vous.</p>
+        <p class="mention">Données d’exemple</p>
+      </div>
+      <div class="double-images">
+        <div class="fenetre">
+          <div class="fenetre-barre" aria-hidden="true"><span></span><span></span><span></span></div>
+          <img class="img-sombre" src="img/perte-stock_sombre.png" width="1582" height="853" loading="lazy" alt="Formulaire d'une perte de stock dans Lemurix, données d'exemple.">
+          <img class="img-clair" src="img/perte-stock_clair.png" width="1582" height="853" loading="lazy" alt="Formulaire d'une perte de stock dans Lemurix, données d'exemple.">
+        </div>
+        <div class="fenetre">
+          <div class="fenetre-barre" aria-hidden="true"><span></span><span></span><span></span></div>
+          <img class="img-sombre" src="img/ecritures_sombre.png" width="1582" height="853" loading="lazy" alt="Liste des écritures comptables avec l'écriture créée automatiquement, données d'exemple.">
+          <img class="img-clair" src="img/ecritures_clair.png" width="1582" height="853" loading="lazy" alt="Liste des écritures comptables avec l'écriture créée automatiquement, données d'exemple.">
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>Ce que fait Lemurix</h2>
-      <ul>
-        <li>Vous tenez votre stock, vos clients et fournisseurs, et votre trésorerie au même endroit.</li>
-        <li>Quand vous enregistrez un mouvement de stock ou un paiement, l’écriture comptable se crée toute seule.</li>
-        <li>Vous obtenez vos états (bilan, compte de résultat, grand livre) en PDF et en Excel, à montrer à votre comptable.</li>
-      </ul>
-      <p class="petit">Lemurix ne remplace pas un comptable et ne donne aucun conseil fiscal ou juridique.</p>
+    <section class="colonne bloc inverse" aria-labelledby="bloc-c">
+      <div class="bloc-texte">
+        <h2 id="bloc-c">Un compte de résultat et un grand livre à montrer à votre comptable</h2>
+        <p>Vos états financiers s’exportent en PDF et en Excel, pour les montrer à votre comptable.</p>
+        <p class="mention">Données d’exemple</p>
+      </div>
+      <div class="fenetre">
+        <div class="fenetre-barre" aria-hidden="true"><span></span><span></span><span></span></div>
+        <img class="img-sombre" src="img/compte-de-resultat_sombre.png" width="1582" height="853" loading="lazy" alt="Compte de résultat dans Lemurix, données d'exemple.">
+        <img class="img-clair" src="img/compte-de-resultat_clair.png" width="1582" height="853" loading="lazy" alt="Compte de résultat dans Lemurix, données d'exemple.">
+      </div>
     </section>
 
-    <section class="encadre">
-      <h2>Test gratuit pour les testeurs</h2>
-      <p>
-        Le test est gratuit pour les testeurs. C’est une version de test :
-        <strong>la base de données peut être remise à zéro d’une version à l’autre, n’y mettez donc pas encore vos
-        vraies données d’entreprise</strong>. Utilisez des exemples tirés de votre activité.
-      </p>
+    <section class="colonne bloc" aria-labelledby="bloc-e">
+      <div class="bloc-texte">
+        <h2 id="bloc-e">Voyez ce qu’il reste en stock et ce qu’il faut recommander</h2>
+        <p>Lemurix signale les produits sous leur seuil d’alerte et vous permet de générer des bons de commande.</p>
+        <p class="mention">Données d’exemple</p>
+      </div>
+      <div class="fenetre">
+        <div class="fenetre-barre" aria-hidden="true"><span></span><span></span><span></span></div>
+        <img class="img-sombre" src="img/restock_sombre.png" width="1582" height="853" loading="lazy" alt="Écran Restock de Lemurix : produits sous leur seuil d'alerte, données d'exemple.">
+        <img class="img-clair" src="img/restock_clair.png" width="1582" height="853" loading="lazy" alt="Écran Restock de Lemurix : produits sous leur seuil d'alerte, données d'exemple.">
+      </div>
     </section>
 
-    <section>
-      <h2>Télécharger</h2>
-      <p>
-        <a class="bouton" href="https://github.com/Krazy-Karl/Lemurix-Release/releases/latest">Télécharger la dernière version</a>
-      </p>
-      <p>
-        La page s’ouvre sans compte. Cliquez sur le fichier dont le nom se termine par
-        <code>installateur.exe</code>.
-      </p>
+    <div class="colonne">
+      <p class="limite">Lemurix ne remplace pas un comptable, ne calcule pas vos impôts et ne fait aucune déclaration à l’administration.</p>
+    </div>
+
+    <section class="colonne section" id="etapes" aria-labelledby="t-etapes">
+      <h2 class="section-titre" id="t-etapes">Trois étapes</h2>
+      <ol class="etapes">
+        <li>
+          <h3>Télécharger</h3>
+          <p>Sur la page des versions, choisissez le fichier qui se termine par <code>installateur.exe</code>. Aucun compte nécessaire.</p>
+        </li>
+        <li>
+          <h3>Installer</h3>
+          <p>Windows peut afficher « Windows a protégé votre ordinateur » : Lemurix n’a pas encore de certificat d’éditeur reconnu (il est payant). Cliquez sur « Informations complémentaires » puis « Exécuter quand même ». Si vous hésitez, écrivez-moi avant.</p>
+        </li>
+        <li>
+          <h3>Tester avec des exemples</h3>
+          <p>C’est une version de test : la base peut être remise à zéro d’une version à l’autre, n’y mettez pas encore vos vraies données.</p>
+        </li>
+      </ol>
     </section>
 
-    <section>
-      <h2>Un avertissement Windows peut s’afficher</h2>
-      <p>
-        Windows peut afficher un écran bleu « Windows a protégé votre ordinateur », parce que Lemurix n’a pas encore de
-        certificat d’éditeur reconnu (il est payant). Cela ne veut pas dire que le fichier est dangereux. Cliquez sur
-        <strong>« Informations complémentaires »</strong>, puis sur <strong>« Exécuter quand même »</strong>.
-        Un antivirus peut aussi réagir : si vous hésitez, écrivez-moi avant d’installer.
-      </p>
+    <section class="colonne section telephone" aria-labelledby="t-tel">
+      <div class="carte">
+        <h2 class="section-titre" id="t-tel">Vous êtes sur téléphone ?</h2>
+        <p>Lemurix fonctionne sur Windows. Envoyez-vous ce lien pour l’installer depuis votre ordinateur.</p>
+        <div class="lien-page">
+          <button class="bouton secondaire" type="button" id="copier">Copier le lien de cette page</button>
+        </div>
+        <code class="adresse" id="adresse" hidden></code>
+      </div>
     </section>
 
-    <section>
-      <h2>Construit avec l’IA, vérifié par des tests</h2>
-      <p>
-        Lemurix a été développé avec l’aide d’une intelligence artificielle (Claude, d’Anthropic). J’ai apporté les idées,
-        les choix de produit, les tests et des phases de contrôle. Aucun professionnel de la comptabilité n’a encore
-        validé le logiciel : c’est justement pour cela que j’ai besoin de testeurs.
-      </p>
+    <section class="colonne section" aria-labelledby="t-qui">
+      <div class="grille-cartes">
+        <div class="carte">
+          <h2 class="section-titre" id="t-qui">Qui suis-je</h2>
+          <p>Je m’appelle Karl. J’ai créé Lemurix pour aider les petites entreprises à tenir une comptabilité plus simple et plus claire. C’est une version de test : je cherche des testeurs, et votre avis compte plus que tout.</p>
+        </div>
+        <div class="carte encadre-test">
+          <h2 class="section-titre">Test gratuit pour les testeurs</h2>
+          <p>Le test est gratuit pour les testeurs. C’est une version de test : <strong>la base de données peut être remise à zéro d’une version à l’autre, n’y mettez donc pas encore vos vraies données d’entreprise</strong>. Utilisez des exemples tirés de votre activité.</p>
+        </div>
+        <div class="carte">
+          <h2 class="section-titre">Construit avec l’IA, vérifié par des tests</h2>
+          <p>Lemurix a été développé avec l’aide d’une intelligence artificielle (Claude, d’Anthropic). J’ai apporté les idées, les choix de produit, les tests et des phases de contrôle. Aucun professionnel de la comptabilité n’a encore validé le logiciel : c’est justement pour cela que j’ai besoin de testeurs.</p>
+        </div>
+        <div class="carte">
+          <h2 class="section-titre">Me contacter</h2>
+          <p class="contact-num">WhatsApp : <strong>038 68 817 08</strong></p>
+          <p>Pour un problème, dites-moi : où vous étiez, ce que vous avez fait, ce que vous attendiez, ce qui s’est passé. Une capture d’écran aide beaucoup (touches Windows + Maj + S). Je ne peux pas promettre de délai de réponse, mais je lis tout.</p>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>Me contacter</h2>
-      <p class="contact">
-        WhatsApp : <strong>038 68 817 08</strong>
-      </p>
-      <p>
-        Pour un problème, dites-moi : où vous étiez, ce que vous avez fait, ce que vous attendiez, ce qui s’est passé.
-        Une capture d’écran aide beaucoup (touches Windows + Maj + S). Je ne peux pas promettre de délai de réponse,
-        mais je lis tout.
-      </p>
+    <section class="colonne section" aria-labelledby="t-faq">
+      <h2 class="section-titre" id="t-faq">Questions fréquentes</h2>
+      <div class="faq">
+        <details><summary>C’est gratuit ?</summary><p>Le test est gratuit pour les testeurs. Aucun tarif ni offre n’est annoncé pour l’instant.</p></details>
+        <details><summary>Puis-je y mettre mes vraies données ?</summary><p>Pas encore : c’est une version de test, la base peut être remise à zéro.</p></details>
+        <details><summary>Où sont mes données ?</summary><p>Sur votre ordinateur. Par défaut, rien ne le quitte. Une option, désactivée par défaut, permet d’envoyer une sauvegarde chiffrée à un serveur situé hors de Madagascar : pour le test, ne l’activez pas.</p></details>
+        <details><summary>Est-ce que ça calcule mes impôts ou fait ma déclaration ?</summary><p>Non. Lemurix ne remplace pas un comptable.</p></details>
+        <details><summary>Est-ce que ça marche sans internet ?</summary><p>Une fois installé, oui.</p></details>
+      </div>
     </section>
   </main>
 
-  <footer class="pied">
+  <footer class="colonne pied">
     <p>Lemurix – version de test.</p>
   </footer>
+
+  <script>
+    (function () {
+      var racine = document.documentElement;
+      function modeActif() {
+        var m = racine.getAttribute("data-theme");
+        if (m) return m;
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      }
+      document.getElementById("bascule").addEventListener("click", function () {
+        var suivant = modeActif() === "light" ? "dark" : "light";
+        racine.setAttribute("data-theme", suivant);
+        try { localStorage.setItem("lemurix-mode", suivant); } catch (e) {}
+      });
+      var copier = document.getElementById("copier");
+      var adresse = document.getElementById("adresse");
+      if (copier) {
+        copier.addEventListener("click", function () {
+          var lien = location.href.split("#")[0];
+          function afficher() { adresse.textContent = lien; adresse.hidden = false; }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(lien).then(function () { copier.textContent = "Lien copié"; afficher(); }, afficher);
+          } else { afficher(); }
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
